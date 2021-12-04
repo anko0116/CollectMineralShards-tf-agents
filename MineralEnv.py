@@ -13,6 +13,9 @@ from tf_agents.trajectories import time_step as ts
 from pysc2.env import sc2_env, environment
 from pysc2.lib import actions, features, units
 
+# How to set up custom tf-agents envrionment
+# https://towardsdatascience.com/creating-a-custom-environment-for-tensorflow-agent-tic-tac-toe-example-b66902f73059
+
 class MineralEnv(py_environment.PyEnvironment):
     # Default settings for initializing CollectMineralShards
     metadata = {'render.modes': ['human']}
