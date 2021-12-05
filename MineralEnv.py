@@ -25,12 +25,10 @@ class MineralEnv(py_environment.PyEnvironment):
     'agent_interface_format': sc2_env.parse_agent_interface_format(
         feature_screen=84,
         feature_minimap=64,
-        #rgb_screen=None,
-        #rgb_minimap=None,
         action_space=None,
         use_feature_units=False,
         use_raw_units=False),
-    'realtime': True,
+    'realtime': False,
     'visualize': True,
     'disable_fog': True,
     }
@@ -38,13 +36,14 @@ class MineralEnv(py_environment.PyEnvironment):
     def __init__(self):
         self.obs_shape = (1, 84, 84)
         self._action_spec = array_spec.BoundedArraySpec(
-            shape=self.obs_shape, dtype=np.float32, minimum=0.0, maximum=1.0
+            shape=(), dtype=np.int32, minimum=0, maximum=7055
         )
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=self.obs_shape, dtype=np.int32, minimum=0, maximum=4, name='board'
         )
         self._episode_ended = False
-        self.mineral_env = None
+        self.env = None
+        self._reset()
 
     def action_spec(self):
         return self._action_spec
@@ -54,7 +53,7 @@ class MineralEnv(py_environment.PyEnvironment):
     def _reset(self):
         self._episode_ended = False
 
-        if self.mineral_env == None:
+        if self.env == None:
             args = {**self.default_settings}
             self.env = sc2_env.SC2Env(**args)
         
@@ -72,9 +71,11 @@ class MineralEnv(py_environment.PyEnvironment):
         if self._episode_ended:
             return self._reset()
         
+        x = action // 84
+        y = action % 84
         raw_obs = self.env.step(
             [actions.FunctionCall(
-                actions.FUNCTIONS.Attack_screen.id, [[0], [0,0]])
+                actions.FUNCTIONS.Attack_screen.id, [[0], [x,y]])
             ]
         )[0]
 
