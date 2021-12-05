@@ -14,14 +14,17 @@ from tf_agents.environments import wrappers
 from tf_agents.environments import suite_gym
 from tf_agents.trajectories import time_step as ts
 
+from dqn_cnn import build_model
 
 FLAGS = flags.FLAGS
 FLAGS([''])
 
 python_environment = MineralEnv()
-tf_env = tf_py_environment.TFPyEnvironment(python_environment)
+sc2_env = tf_py_environment.TFPyEnvironment(python_environment)
 
-time_step = tf_env.reset()
+q_net = build_model()
+
+time_step = sc2_env.reset()
 rewards = []
 steps = []
 number_of_episodes = 10000
@@ -29,11 +32,11 @@ number_of_episodes = 10000
 for _ in range(number_of_episodes):
     reward_t = 0
     steps_t = 0
-    tf_env.reset()
+    sc2_env.reset()
     while True:
         action = tf.random.uniform([1], 0, 9, dtype=tf.int32)
-        next_time_step = tf_env.step(action)
-        if tf_env.current_time_step().is_last():
+        next_time_step = sc2_env.step(action)
+        if sc2_env.current_time_step().is_last():
             break
         steps_t += 1
         reward_t += next_time_step.reward.numpy()
